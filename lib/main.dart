@@ -22,6 +22,9 @@ class BlocProviders extends StatelessWidget {
         BlocProvider(
           create: (context) => sl<RemoteBloc>(),
         ),
+        BlocProvider(
+          create: (context) => sl<StorageBloc>(),
+        )
       ],
       child: const MyApp(),
     );

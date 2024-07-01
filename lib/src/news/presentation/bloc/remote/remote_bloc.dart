@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_world_news/src/news/domain/entities/article.dart';
-import 'package:flutter_world_news/src/news/domain/usecases/get_articles.dart';
+import 'package:flutter_world_news/src/news/domain/usecases/remote/get_articles.dart';
 
 part 'remote_event.dart';
 part 'remote_state.dart';

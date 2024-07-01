@@ -1,7 +1,7 @@
-import 'package:flutter_world_news/src/news/data/datasources/remote_datasource.dart';
-import 'package:flutter_world_news/src/news/data/repositories/remote_repository_impl.dart';
-import 'package:flutter_world_news/src/news/domain/repositories/remote_repository.dart';
-import 'package:flutter_world_news/src/news/domain/usecases/get_articles.dart';
+import 'package:flutter_world_news/src/news/data/datasources/datasources.dart';
+import 'package:flutter_world_news/src/news/data/repositories/repository_impls.dart';
+import 'package:flutter_world_news/src/news/domain/repositories/repositories.dart';
+import 'package:flutter_world_news/src/news/domain/usecases/usecases.dart';
 import 'package:flutter_world_news/src/news/presentation/bloc/blocs.dart';
 import 'package:get_it/get_it.dart';
 
@@ -13,15 +13,26 @@ Future<void> init() async {
   sl
     // App logic
     ..registerFactory(() => RemoteBloc(getArticles: sl()))
-
+    ..registerFactory(() => StorageBloc(
+          getArticles: sl(),
+          isArticleSaved: sl(),
+          searchArticle: sl(),
+          toggleSaved: sl(),
+        ))
     // Usecases
     ..registerLazySingleton(() => GetArticles(sl()))
+    ..registerLazySingleton(() => GetStorageArticles(sl()))
+    ..registerLazySingleton(() => IsArticleSaved(sl()))
+    ..registerLazySingleton(() => SearchArticle(sl()))
+    ..registerLazySingleton(() => ToggleSaved(sl()))
 
     // Repositories
     ..registerLazySingleton<RemoteRepository>(() => RemoteRepositoryImpl(sl()))
+    ..registerLazySingleton<StorageRepository>(() => StorageRepositoryImpl(sl()))
 
     // Data Sources
     ..registerLazySingleton<RemoteDatasource>(() => RemoteDatasourceImpl(sl()))
+    ..registerLazySingleton<StorageDatasource>(() => StorageDatasourceImpl())
 
     // External dependencies
     ..registerLazySingleton(http.Client.new);
