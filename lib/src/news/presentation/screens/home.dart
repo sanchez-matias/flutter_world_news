@@ -27,7 +27,9 @@ class _HomeScreenState extends State<HomeScreen>
                 title: const Text('World News'),
                 actions: [
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushNamed(context, 'settings');
+                    },
                     icon: const Icon(Icons.settings),
                   ),
                 ],
