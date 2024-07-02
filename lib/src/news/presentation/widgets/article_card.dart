@@ -9,7 +9,6 @@ class ArticleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
 
     return Card.outlined(
       margin: const EdgeInsets.all(10),
@@ -37,7 +36,11 @@ class ArticleCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
               child: Text(
                 article.title!,
-                style: textTheme.titleLarge,
+                style: const TextStyle(
+                  fontFamily: 'NotoSerif',
+                  fontSize: 21,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],

@@ -23,6 +23,8 @@ class _StorageViewState extends State<StorageView> {
 
   @override
   Widget build(BuildContext context) {
+    const fontFamily = 'NotoSerif';
+
     return BlocBuilder<StorageBloc, StorageState>(
       builder: (context, state) {
         if (state.status == StorageStatus.failure) {
@@ -56,12 +58,18 @@ class _StorageViewState extends State<StorageView> {
             },
             title: Text(
               state.articles[index].title!,
-              style: const TextStyle(fontWeight: FontWeight.w800),
+              style: const TextStyle(
+                fontWeight: FontWeight.w800,
+                fontFamily: fontFamily,
+              ),
             ),
             subtitle: Text(
               state.articles[index].description!,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontFamily: fontFamily,
+              ),
             ),
           ),
         );

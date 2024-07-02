@@ -41,11 +41,11 @@ class _ArticleScreenState extends State<ArticleScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = Theme.of(context).textTheme;
-
     final publishedAt = widget.article.publishedAt != null
         ? DateTime.parse(widget.article.publishedAt!)
         : DateTime.now();
+
+    const fontFamily = 'NotoSerif';
 
     return Scaffold(
         appBar: AppBar(
@@ -70,7 +70,9 @@ class _ArticleScreenState extends State<ArticleScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
                   'Published: ${publishedAt.year}/${publishedAt.month}/${publishedAt.day}',
-                  textAlign: TextAlign.left,
+                  style: const TextStyle(
+                    fontFamily: fontFamily,
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
@@ -79,16 +81,21 @@ class _ArticleScreenState extends State<ArticleScreen> {
                 child: Text(
                   widget.article.title!,
                   style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 22),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                    fontFamily: fontFamily,
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Text(
-                  widget.article.description ?? 'No caption',
-                  style: textStyle.titleSmall,
-                ),
+                child: Text(widget.article.description ?? 'No caption',
+                    style: const TextStyle(
+                      fontFamily: fontFamily,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    )),
               ),
               const SizedBox(height: 20),
               FadeInImage(
@@ -104,7 +111,10 @@ class _ArticleScreenState extends State<ArticleScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
                   widget.article.content!,
-                  style: textStyle.bodyLarge,
+                  style: const TextStyle(
+                    fontFamily: fontFamily,
+                    fontSize: 16,
+                  ),
                   textAlign: TextAlign.justify,
                 ),
               ),

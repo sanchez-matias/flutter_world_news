@@ -14,6 +14,8 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     super.build(context);
 
+    final color = Theme.of(context).colorScheme;
+
     return Scaffold(
       body: DefaultTabController(
           length: 3,
@@ -24,7 +26,14 @@ class _HomeScreenState extends State<HomeScreen>
                 floating: true,
                 snap: true,
                 centerTitle: true,
-                title: const Text('World News'),
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.public, color: color.primary),
+                    const SizedBox(width: 10),
+                    const Text('World News'),
+                  ],
+                ),
                 actions: [
                   IconButton(
                     onPressed: () {
@@ -33,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen>
                     icon: const Icon(Icons.settings),
                   ),
                 ],
-                bottom: const TabBar(tabs: [
+                bottom: const TabBar.secondary(tabs: [
                   Tab(child: Icon(Icons.category_rounded)),
                   Tab(child: Icon(Icons.home_rounded)),
                   Tab(child: Icon(Icons.bookmark_rounded)),
