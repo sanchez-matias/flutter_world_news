@@ -51,9 +51,32 @@ class RemoteBloc extends Bloc<RemoteEvent, RemoteState> {
     page++;
   }
 
-  void _onChangeCountryHandler(
-      ChangeCountry event, Emitter<RemoteState> emit) {}
+  void _onChangeCountryHandler(ChangeCountry event, Emitter<RemoteState> emit) {
+    if (event.newCountyCode == state.country) return;
+
+    emit(state.copyWith(
+      articles: [],
+      status: RequestStatus.initial,
+      country: event.newCountyCode,
+    ));
+
+    page = 0;
+
+    loadNextPage();
+  }
 
   void _onChangeCategoryHandler(
-      ChangeCategory event, Emitter<RemoteState> emit) {}
+      ChangeCategory event, Emitter<RemoteState> emit) {
+    if (event.newCategoryName == state.category) return;
+
+    emit(state.copyWith(
+      articles: [],
+      status: RequestStatus.initial,
+      category: event.newCategoryName,
+    ));
+
+    page = 0;
+
+    loadNextPage();
+  }
 }

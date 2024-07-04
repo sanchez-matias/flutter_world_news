@@ -18,17 +18,17 @@ class _HomeScreenState extends State<HomeScreen>
 
     return Scaffold(
       body: DefaultTabController(
-          length: 3,
-          initialIndex: 1,
+          length: 2,
+          initialIndex: 0,
           child: NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) => [
               SliverAppBar(
                 floating: true,
-                snap: true,
                 centerTitle: true,
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    const SizedBox(width: 25),
                     Icon(Icons.public, color: color.primary),
                     const SizedBox(width: 10),
                     const Text('World News'),
@@ -43,14 +43,12 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ],
                 bottom: const TabBar.secondary(tabs: [
-                  Tab(child: Icon(Icons.category_rounded)),
                   Tab(child: Icon(Icons.home_rounded)),
                   Tab(child: Icon(Icons.bookmark_rounded)),
                 ]),
               ),
             ],
             body: const TabBarView(children: [
-              CategoriesView(),
               HomeView(),
               StorageView(),
             ]),
