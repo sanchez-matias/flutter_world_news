@@ -19,8 +19,12 @@ Future<void> init() async {
           searchArticle: sl(),
           toggleSaved: sl(),
         ))
+    ..registerFactory(() => RemoteSearchCubit(searchArticles: sl()))
+
+
     // Usecases
     ..registerLazySingleton(() => GetArticles(sl()))
+    ..registerLazySingleton(() => SearchArticles(sl()))
     ..registerLazySingleton(() => GetStorageArticles(sl()))
     ..registerLazySingleton(() => IsArticleSaved(sl()))
     ..registerLazySingleton(() => SearchArticle(sl()))

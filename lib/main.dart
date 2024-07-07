@@ -37,7 +37,10 @@ class BlocProviders extends StatelessWidget {
             isDarkMode: prefs.lastBrightnessMode,
             themeColor: prefs.lastThemeColor,
           ),
-        )
+        ),
+        BlocProvider(
+          create: (context) => sl<RemoteSearchCubit>(),
+        ),
       ],
       child: const MyApp(),
     );

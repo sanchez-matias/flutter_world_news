@@ -53,10 +53,7 @@ class _HomeScreenState extends State<HomeScreen>
               StorageView(),
             ]),
           )),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: const Icon(Icons.search),
-      ),
+      
     );
   }
 
