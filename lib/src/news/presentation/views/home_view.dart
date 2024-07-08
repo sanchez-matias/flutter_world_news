@@ -62,8 +62,10 @@ class _HomeViewState extends State<HomeView>
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          showSearch(context: context, delegate: RemoteSearchDelegate())
-              .then((article) {
+          showSearch(
+            context: context,
+            delegate: CustomSearchDelegate(SearchType.remote),
+          ).then((article) {
             if (article == null) return;
 
             Navigator.push(

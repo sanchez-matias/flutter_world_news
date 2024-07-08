@@ -16,10 +16,10 @@ Future<void> init() async {
     ..registerFactory(() => StorageBloc(
           getArticles: sl(),
           isArticleSaved: sl(),
-          searchArticle: sl(),
           toggleSaved: sl(),
         ))
     ..registerFactory(() => RemoteSearchCubit(searchArticles: sl()))
+    ..registerFactory(() => LocalSearchCubit(searchArticle: sl()))
 
 
     // Usecases

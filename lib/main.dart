@@ -41,6 +41,9 @@ class BlocProviders extends StatelessWidget {
         BlocProvider(
           create: (context) => sl<RemoteSearchCubit>(),
         ),
+        BlocProvider(
+          create: (context) => sl<LocalSearchCubit>(),
+        )
       ],
       child: const MyApp(),
     );

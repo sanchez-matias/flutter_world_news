@@ -2,8 +2,114 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_world_news/src/news/domain/entities/article.dart';
 import 'package:flutter_world_news/src/news/presentation/bloc/blocs.dart';
+import 'package:flutter_world_news/src/news/presentation/widgets/article_tile.dart';
 
-class RemoteSearchDelegate extends SearchDelegate<Article?> {
+enum SearchType {local, remote}
+
+class CustomSearchDelegate extends SearchDelegate<Article?> {
+  final SearchType searchType;
+
+  CustomSearchDelegate(this.searchType);
+
+  Widget _buildLocalSearch(BuildContext context, String query) {
+    context.read<LocalSearchCubit>().searchDbArticles(query);
+
+    return BlocBuilder<LocalSearchCubit, LocalSearchState>(
+      builder: (context, state) {
+        switch (state.searchStatus) {
+          case (LocalSearchStatus.failure):
+            return const Center(
+              child: Text('There was a failure on the DB'),
+            );
+
+          case (LocalSearchStatus.loading):
+            return const Center(child: CircularProgressIndicator());
+
+          case (LocalSearchStatus.success):
+          
+            if (state.articles.isEmpty) {
+              return const Center(
+                child: Text('There are no matching articles'),
+              );
+            }
+
+            return ListView.separated(
+              itemBuilder: (context, index) {
+                final item = state.articles[index];
+
+                return ArticleTile(
+                  article: item,
+                  onArticleSelected: (context, item) {
+                    close(context, item);
+                  },
+                );
+              },
+              separatorBuilder: (context, index) => const Divider(),
+              itemCount: state.articles.length,
+            );
+
+          default:
+            return const SizedBox();
+        }
+      },
+    );
+  }
+
+  Widget _buildRemoteSearch(BuildContext context, String query) {
+    context.read<RemoteSearchCubit>().searchArticles(query: query);
+
+    return BlocBuilder<RemoteSearchCubit, RemoteSearchState>(
+      builder: (context, state) {
+        switch (state.status) {
+          case (RemoteSearchStatus.failure):
+            return const Center(
+              child: Text('There was a failure searching articles'),
+            );
+
+          case (RemoteSearchStatus.loading):
+            return const Center(child: CircularProgressIndicator());
+
+          case (RemoteSearchStatus.success):
+          
+            if (state.articles.isEmpty) {
+              return const Center(
+                child: Text('There are no coincidences'),
+              );
+            }
+
+            return ListView.separated(
+              itemBuilder: (context, index) {
+                final item = state.articles[index];
+
+                return ArticleTile(
+                  article: item,
+                  onArticleSelected: (context, item) {
+                    close(context, item);
+                  },
+                );
+              },
+              separatorBuilder: (context, index) => const Divider(),
+              itemCount: state.articles.length,
+            );
+
+          default:
+            return const SizedBox();
+        }
+      },
+    );
+  }
+
+  @override
+  String? get searchFieldLabel {
+    switch (searchType) {
+      case (SearchType.remote):
+        return 'Search online';
+
+      case (SearchType.local):
+        return 'Search locally';
+    }
+  }
+
   @override
   List<Widget>? buildActions(BuildContext context) {
     return [
@@ -26,47 +132,12 @@ class RemoteSearchDelegate extends SearchDelegate<Article?> {
   Widget buildResults(BuildContext context) {
     if (query == '') return const SizedBox();
 
-    context.read<RemoteSearchCubit>().searchArticles(query: query);
-
-    return BlocBuilder<RemoteSearchCubit, RemoteSearchState>(
-      builder: (context, state) {
-        switch (state.status) {
-          case (RemoteSearchStatus.failure):
-            return const Center(
-              child: Text('There was a failure searching articles'),
-            );
-
-          case (RemoteSearchStatus.loading):
-            return const Center(child: CircularProgressIndicator());
-
-          case (RemoteSearchStatus.success):
-          
-            if (state.articles.isEmpty) {
-              return const Center(
-                child: Text('There is no coincidences'),
-              );
-            }
-
-            return ListView.separated(
-              itemBuilder: (context, index) {
-                final item = state.articles[index];
-
-                return _ResultItem(
-                  article: item,
-                  onMovieSelected: (context, item) {
-                    close(context, item);
-                  },
-                );
-              },
-              separatorBuilder: (context, index) => const Divider(),
-              itemCount: state.articles.length,
-            );
-
-          default:
-            return const SizedBox();
-        }
-      },
-    );
+    switch (searchType) {
+      case (SearchType.remote):
+        return _buildRemoteSearch(context, query);
+      case (SearchType.local):
+        return _buildLocalSearch(context, query);
+    }
   }
 
   @override
@@ -75,69 +146,3 @@ class RemoteSearchDelegate extends SearchDelegate<Article?> {
   }
 }
 
-class _ResultItem extends StatelessWidget {
-  final Article article;
-  final Function onMovieSelected;
-
-  const _ResultItem({
-    required this.article,
-    required this.onMovieSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final textStyles = Theme.of(context).textTheme;
-    final size = MediaQuery.of(context).size;
-
-    return GestureDetector(
-      onTap: () => onMovieSelected(context, article),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        child: Row(
-          children: [
-            SizedBox(
-              width: size.width * 0.2,
-              child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: FadeInImage(
-                    height: 130,
-                    fit: BoxFit.cover,
-                    image: NetworkImage(article.urlToImage!),
-                    placeholder: const AssetImage('assets/loading.gif'),
-                  )),
-            ),
-
-            const SizedBox(width: 10),
-
-            SizedBox(
-                width: size.width * 0.7,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      article.title!,
-                      style: textStyles.titleMedium,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      article.description!,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: textStyles.bodyMedium,
-                    ),
-
-                    const SizedBox(height: 15),
-
-                    Text(
-                      article.sourceName!.toUpperCase(),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    )
-                  ],
-                )),
-          ],
-        ),
-      ),
-    );
-  }
-}
