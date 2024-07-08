@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_world_news/src/news/presentation/bloc/blocs.dart';
-import 'package:flutter_world_news/src/news/presentation/delegates/remote_search_delegate.dart';
+import 'package:flutter_world_news/src/news/presentation/delegates/custom_search_delegate.dart';
 import 'package:flutter_world_news/src/news/presentation/screens/screens.dart';
 import 'package:flutter_world_news/src/news/presentation/widgets/article_card.dart';
 
