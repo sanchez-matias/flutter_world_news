@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_world_news/src/news/presentation/bloc/blocs.dart';
 import 'package:flutter_world_news/src/news/presentation/delegates/custom_search_delegate.dart';
 import 'package:flutter_world_news/src/news/presentation/screens/screens.dart';
@@ -54,15 +55,36 @@ class _StorageViewState extends State<StorageView> {
 
               final item = state.articles[index - 1];
 
-              return ArticleTile(
-                article: item,
-                onArticleSelected: (context, article) {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ArticleScreen(article: article),
-                      ));
-                },
+              return Slidable(
+
+                key: ValueKey(index-1),
+
+                endActionPane: ActionPane(
+                  motion: const ScrollMotion(),
+                  children: [
+                    SlidableAction(
+                      spacing: 2,
+                      onPressed: (context) {
+                        context.read<StorageBloc>().add(ToggleSavedEvent(item));
+                      },
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      icon: Icons.delete,
+                      label: 'Delete',
+                    ),
+                  ],
+                ),
+
+                child: ArticleTile(
+                  article: item,
+                  onArticleSelected: (context, article) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ArticleScreen(article: article),
+                        ));
+                  },
+                ),
               );
             });
       },
