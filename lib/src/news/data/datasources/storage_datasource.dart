@@ -92,7 +92,8 @@ class StorageDatasourceImpl extends StorageDatasource {
       final database = await _db;
       final List<Map<String, dynamic>> result = await database.rawQuery('''
       SELECT * FROM $tableName
-      WHERE title LIKE "%$query%" OR description LIKE "%$query%"
+      WHERE title COLLATE Latin1_General_CS_AS LIKE "%$query%" 
+      OR description COLLATE Latin1_General_CS_AS LIKE "%$query%"
       ''');
 
       return List.generate(

@@ -17,7 +17,7 @@ class LocalSearchCubit extends Cubit<LocalSearchState> {
   Future<void> searchDbArticles(String query) async {
     emit(state.copyWith(searchStatus: LocalSearchStatus.loading));
 
-    final resut = await _searchArticle(query);
+    final resut = await _searchArticle(query.toLowerCase());
 
     resut.fold(
       (failure) => emit(state.copyWith(searchStatus: LocalSearchStatus.failure)),
