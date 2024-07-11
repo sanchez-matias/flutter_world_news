@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_world_news/src/news/domain/entities/article.dart';
 import 'package:flutter_world_news/src/news/presentation/bloc/blocs.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ArticleScreen extends StatefulWidget {
   final Article article;
@@ -31,6 +32,11 @@ class _ArticleScreenState extends State<ArticleScreen> {
     await Future.delayed(const Duration(milliseconds: 100));
     await _updateSavedButton();
     setState(() {});
+  }
+
+  void _showCustomSnackBar(String msg) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   @override
@@ -119,6 +125,18 @@ class _ArticleScreenState extends State<ArticleScreen> {
                 ),
               ),
               const SizedBox(height: 20),
+              OutlinedButton.icon(
+                onPressed: () async {
+                  final uri = Uri.parse(widget.article.url!);
+
+                  if (!await launchUrl(uri, mode: LaunchMode.inAppBrowserView)) {
+                    _showCustomSnackBar('Oops... could not open in browser');
+                  }
+                },
+                icon: const Icon(Icons.read_more),
+                label: const Text('Go to page'),
+              ),
+              const SizedBox(height: 40),
             ])));
   }
 }
