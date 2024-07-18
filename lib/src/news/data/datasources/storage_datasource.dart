@@ -15,7 +15,7 @@ abstract class StorageDatasource {
 
 class StorageDatasourceImpl extends StorageDatasource {
   late Future<Database> _db;
-  final String tableName = 'Articles';
+  final String articlesTable = 'Articles';
 
   StorageDatasourceImpl() {
     _db = openDbInstance();
@@ -29,16 +29,16 @@ class StorageDatasourceImpl extends StorageDatasource {
       version: 1,
       onCreate: (db, version) {
         db.execute('''
-        CREATE TABLE $tableName (
+        CREATE TABLE $articlesTable (
 	        ArticleID	INTEGER PRIMARY KEY AUTOINCREMENT,
-	        author TEXT,
-	        content	TEXT,
-	        description	TEXT,
-	        publishedAt	TEXT,
-	        sourceName TEXT,
-	        title	TEXT,
-	        url	TEXT,
-	        urlToImage TEXT)
+	        Author TEXT,
+	        Content	TEXT,
+	        Description	TEXT,
+	        PublishedAt	TEXT,
+	        SourceName TEXT,
+	        Title	TEXT,
+	        Url	TEXT,
+	        UrlToImage TEXT)
         ''');
       },
     );
@@ -50,19 +50,20 @@ class StorageDatasourceImpl extends StorageDatasource {
     try {
       final database = await _db;
       final List<Map<String, dynamic>> savedArticles =
-          await database.rawQuery('SELECT * FROM $tableName');
+          await database.rawQuery('SELECT * FROM $articlesTable');
 
       return List.generate(
           savedArticles.length,
           (i) => Article(
-                author: savedArticles[i]['author'],
-                content: savedArticles[i]['content'],
-                description: savedArticles[i]['description'],
-                publishedAt: savedArticles[i]['publishedAt'],
-                sourceName: savedArticles[i]['sourceName'],
-                title: savedArticles[i]['title'],
-                url: savedArticles[i]['url'],
-                urlToImage: savedArticles[i]['urlToImage'],
+                id: savedArticles[i]['ArticleID'],
+                author: savedArticles[i]['Author'],
+                content: savedArticles[i]['Content'],
+                description: savedArticles[i]['Description'],
+                publishedAt: savedArticles[i]['PublishedAt'],
+                sourceName: savedArticles[i]['SourceName'],
+                title: savedArticles[i]['Title'],
+                url: savedArticles[i]['Url'],
+                urlToImage: savedArticles[i]['UrlToImage'],
               ));
     } on ApiException {
       rethrow;
@@ -76,7 +77,7 @@ class StorageDatasourceImpl extends StorageDatasource {
     try {
       final database = await _db;
       final queryArticles =
-          await database.query(tableName, where: "url = '$url'");
+          await database.query(articlesTable, where: "Url = '$url'");
 
       return queryArticles.isNotEmpty;
     } on ApiException {
@@ -91,22 +92,23 @@ class StorageDatasourceImpl extends StorageDatasource {
     try {
       final database = await _db;
       final List<Map<String, dynamic>> result = await database.rawQuery('''
-      SELECT * FROM $tableName
-      WHERE title COLLATE Latin1_General_CS_AS LIKE "%$query%" 
-      OR description COLLATE Latin1_General_CS_AS LIKE "%$query%"
+      SELECT * FROM $articlesTable
+      WHERE Title COLLATE Latin1_General_CS_AS LIKE "%$query%" 
+      OR Description COLLATE Latin1_General_CS_AS LIKE "%$query%"
       ''');
 
       return List.generate(
         result.length,
         (i) => Article(
-          author: result[i]['author'],
-          content: result[i]['content'],
-          description: result[i]['description'],
-          publishedAt: result[i]['publishedAt'],
-          sourceName: result[i]['sourceName'],
-          title: result[i]['title'],
-          url: result[i]['url'],
-          urlToImage: result[i]['urlToImage'],
+          id: result[i]['ArticleID'],
+          author: result[i]['Author'],
+          content: result[i]['Content'],
+          description: result[i]['Description'],
+          publishedAt: result[i]['PublishedAt'],
+          sourceName: result[i]['SourceName'],
+          title: result[i]['Title'],
+          url: result[i]['Url'],
+          urlToImage: result[i]['UrlToImage'],
         ),
       );
     } on ApiException {
@@ -123,19 +125,20 @@ class StorageDatasourceImpl extends StorageDatasource {
       final isSaved = await isArticleSaved(article.url!);
 
       if (isSaved) {
-        await database.delete(tableName, where: "Url = '${article.url}'");
+        await database.delete(articlesTable,
+            where: "ArticleID = '${article.id}'");
         return;
       }
 
-      await database.insert(tableName, {
-        'author': article.author,
-        'content': article.content,
-        'description': article.description,
-        'publishedAt': article.publishedAt,
-        'sourceName': article.sourceName,
-        'title': article.title,
-        'url': article.url,
-        'urlToImage': article.urlToImage,
+      await database.insert(articlesTable, {
+        'Author': article.author,
+        'Content': article.content,
+        'Description': article.description,
+        'PublishedAt': article.publishedAt,
+        'SourceName': article.sourceName,
+        'Title': article.title,
+        'Url': article.url,
+        'UrlToImage': article.urlToImage,
       });
     } on ApiException {
       rethrow;

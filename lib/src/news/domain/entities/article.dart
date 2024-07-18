@@ -1,4 +1,6 @@
 class Article {
+  final int? id; // This is the article id we are gonna access to interact with the DB.
+
   final String? author;
   final String? content;
   final String? description;
@@ -9,6 +11,8 @@ class Article {
   final String? urlToImage;
 
   const Article({
+    this.id,
+
     this.author,
     this.content,
     this.description,
