@@ -30,7 +30,7 @@ class ArticleTile extends StatelessWidget {
                     height: 130,
                     fit: BoxFit.cover,
                     image: NetworkImage(article.urlToImage!),
-                    placeholder: const AssetImage('assets/loading.gif'),
+                    placeholder: const AssetImage('assets/loaders/loading.gif'),
                   )),
             ),
 

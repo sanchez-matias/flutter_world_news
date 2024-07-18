@@ -29,7 +29,7 @@ class ArticleCard extends StatelessWidget {
               placeholderFit: BoxFit.none,
               height: 250,
               width: double.infinity,
-              placeholder: const AssetImage('assets/loading.gif'),
+              placeholder: const AssetImage('assets/loaders/loading.gif'),
               image: NetworkImage(article.urlToImage!),
             ),
             Padding(

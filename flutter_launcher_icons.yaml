@@ -1,0 +1,9 @@
+# On Change: dart run flutter_launcher_icons
+
+flutter_launcher_icons:
+  android: "news_logo"
+  image_path: "assets/logos/news_logo.png"
+  image_path_ios: "assets/logos/news_logo.png"
+  min_sdk_android: 21
+  adaptive_icon_foreground: "assets/logos/logo_transparent.png"
+  adaptive_icon_background: "#01171f"
