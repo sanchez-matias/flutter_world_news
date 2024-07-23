@@ -4,3 +4,7 @@ export 'storage/get_storage_articles.dart';
 export 'storage/is_article_saved.dart';
 export 'storage/search_article.dart';
 export 'storage/toggle_saved.dart';
+export 'storage/create_tag.dart';
+export 'storage/get_tags.dart';
+export 'storage/delete_tag.dart';
+export 'storage/update_tag.dart';

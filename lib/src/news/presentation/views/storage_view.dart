@@ -4,6 +4,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_world_news/src/news/presentation/bloc/blocs.dart';
 import 'package:flutter_world_news/src/news/presentation/delegates/custom_search_delegate.dart';
 import 'package:flutter_world_news/src/news/presentation/screens/screens.dart';
+import 'package:flutter_world_news/src/news/presentation/screens/tags_screen.dart';
 import 'package:flutter_world_news/src/news/presentation/widgets/article_tile.dart';
 
 class StorageView extends StatefulWidget {
@@ -56,9 +57,7 @@ class _StorageViewState extends State<StorageView> {
               final item = state.articles[index - 1];
 
               return Slidable(
-
-                key: ValueKey(index-1),
-
+                key: ValueKey(index - 1),
                 endActionPane: ActionPane(
                   motion: const ScrollMotion(),
                   children: [
@@ -97,11 +96,60 @@ class _CustomHeaderButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Future<void> showTagSelectorDialog() async => await showDialog<int>(
+          context: context,
+          builder: (context) => AlertDialog.adaptive(
+            title: const Text('Select a List'),
+            scrollable: true,
+            content: SizedBox(
+              width: 250,
+              child: BlocBuilder<TagsCubit, TagsState>(
+                builder: (context, state) {
+                  final tags = state.tags;
+
+                  return Column(
+                    children: [
+                      ListTile(
+                        title: const Text('All'),
+                        onTap: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      ...List.generate(
+                        tags.length,
+                        (index) => ListTile(
+                          title: Text(tags[index].name),
+                          // trailing: Text(tags[index].isModifiable.toString()),
+                          onTap: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      )
+                    ],
+                  );
+                },
+              ),
+            ),
+            actions: [
+              FilledButton.icon(
+                onPressed: () {
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) => const TagsScreen(),
+                  ));
+                },
+                label: const Text('Manage Lists'),
+                icon: const Icon(Icons.edit_outlined),
+              ),
+            ],
+          ),
+        );
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          // Search
           OutlinedButton.icon(
             onPressed: () {
               showSearch(
@@ -120,14 +168,19 @@ class _CustomHeaderButtons extends StatelessWidget {
             label: const Text('Search'),
             icon: const Icon(Icons.search),
           ),
+
           const SizedBox(width: 15),
+
+          // Lists Filter
           FilledButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.list_rounded),
-            label: const Text('List: All'),
-            style: const ButtonStyle(
-                fixedSize: MaterialStatePropertyAll(Size(300, 30))),
-          ),
+              onPressed: () async {
+                await showTagSelectorDialog();
+                // TODO: change category in storage bloc.
+              },
+              icon: const Icon(Icons.list_rounded),
+              label: const Text('List: All'),
+              style: const ButtonStyle(
+                  fixedSize: WidgetStatePropertyAll(Size(300, 30)))),
         ],
       ),
     );

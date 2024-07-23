@@ -1,5 +1,6 @@
 import 'package:flutter_world_news/core/errors/exceptions.dart';
 import 'package:flutter_world_news/src/news/domain/entities/article.dart';
+import 'package:flutter_world_news/src/news/domain/entities/tag.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -11,11 +12,20 @@ abstract class StorageDatasource {
   Future<void> toggleSaved(Article article);
 
   Future<bool> isArticleSaved(String url);
+
+  Future<List<Tag>> getTags();
+
+  Future<void> createTag(String name);
+
+  Future<void> updateTag({required int id, required String newName});
+
+  Future<void> deleteTag(List<int> ids);
 }
 
 class StorageDatasourceImpl extends StorageDatasource {
   late Future<Database> _db;
   final String articlesTable = 'Articles';
+  final String tagsTable = 'Tags';
 
   StorageDatasourceImpl() {
     _db = openDbInstance();
@@ -24,6 +34,7 @@ class StorageDatasourceImpl extends StorageDatasource {
   Future<Database> openDbInstance() async {
     final dbDirPath = await getDatabasesPath();
     final databasePath = join(dbDirPath, 'main_storage.db');
+
     final database = await openDatabase(
       databasePath,
       version: 1,
@@ -39,6 +50,18 @@ class StorageDatasourceImpl extends StorageDatasource {
 	        Title	TEXT,
 	        Url	TEXT,
 	        UrlToImage TEXT)
+        ''');
+
+        db.execute('''
+        CREATE TABLE $tagsTable (
+          TagID INTEGER PRIMARY KEY AUTOINCREMENT,
+          TagName TEXT,
+          IsModifiable INTEGER)
+        ''');
+
+        db.rawInsert('''
+        INSERT INTO $tagsTable (TagName, IsModifiable)
+          VALUES ('Read Later', 0)
         ''');
       },
     );
@@ -140,6 +163,97 @@ class StorageDatasourceImpl extends StorageDatasource {
         'Url': article.url,
         'UrlToImage': article.urlToImage,
       });
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(messagge: e.toString(), statusCode: 501);
+    }
+  }
+
+  @override
+  Future<List<Tag>> getTags() async {
+    try {
+      final database = await _db;
+      final List<Map<String, dynamic>> tags =
+          await database.rawQuery('SELECT * FROM $tagsTable');
+
+      return List.generate(
+          tags.length,
+          (index) => Tag(
+                id: tags[index]['TagID'],
+                name: tags[index]['TagName'],
+                isModifiable: (tags[index]['IsModifiable']) == 1,
+              ));
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(messagge: e.toString(), statusCode: 501);
+    }
+  }
+
+  @override
+  Future<void> createTag(String name) async {
+    try {
+      final database = await _db;
+      final repeatedTags = await database
+          .rawQuery("SELECT * FROM $tagsTable WHERE TagName = '$name'");
+
+      if (repeatedTags.isNotEmpty) {
+        throw const ApiException(
+          messagge: 'DATABASE ERROR: TagName already registered',
+          statusCode: 502,
+        );
+      }
+
+      await database.rawInsert('''
+      INSERT INTO $tagsTable (TagName, IsModifiable)
+      VALUES ('$name', 1)
+      ''');
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(messagge: e.toString(), statusCode: 501);
+    }
+  }
+
+  @override
+  Future<void> updateTag({required int id, required String newName}) async {
+    try {
+      final database = await _db;
+      final repeatedTags = await database
+          .rawQuery("SELECT * FROM $tagsTable WHERE TagName = '$newName'");
+
+      if (repeatedTags.isNotEmpty) {
+        throw const ApiException(
+          messagge: 'DATABASE ERROR: TagName already registered',
+          statusCode: 502,
+        );
+      }
+
+      await database.rawUpdate('''
+      UPDATE $tagsTable
+      SET TagName = '$newName'
+      WHERE TagID = $id AND IsModifiable = 1
+      ''');
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(messagge: e.toString(), statusCode: 501);
+    }
+  }
+
+  @override
+  Future<void> deleteTag(List<int> ids) async {
+    try {
+      final database = await _db;
+      final String idsToString = ids.toString()
+        .replaceFirst("[", "(")
+        .replaceFirst("]", ")");
+      
+      await database.rawDelete('''
+      DELETE FROM $tagsTable
+      WHERE TagID IN $idsToString AND IsModifiable = 1
+      ''');
     } on ApiException {
       rethrow;
     } catch (e) {

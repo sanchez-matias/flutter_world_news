@@ -20,7 +20,12 @@ Future<void> init() async {
         ))
     ..registerFactory(() => RemoteSearchCubit(searchArticles: sl()))
     ..registerFactory(() => LocalSearchCubit(searchArticle: sl()))
-
+    ..registerFactory(() => TagsCubit(
+          getTags: sl(),
+          createTag: sl(),
+          updateTag: sl(),
+          deleteTag: sl(),
+        )..getTags())
 
     // Usecases
     ..registerLazySingleton(() => GetArticles(sl()))
@@ -29,10 +34,15 @@ Future<void> init() async {
     ..registerLazySingleton(() => IsArticleSaved(sl()))
     ..registerLazySingleton(() => SearchArticle(sl()))
     ..registerLazySingleton(() => ToggleSaved(sl()))
+    ..registerLazySingleton(() => GetTags(sl()))
+    ..registerLazySingleton(() => CreateTag(sl()))
+    ..registerLazySingleton(() => UpdateTag(sl()))
+    ..registerLazySingleton(() => DeleteTag(sl()))
 
     // Repositories
     ..registerLazySingleton<RemoteRepository>(() => RemoteRepositoryImpl(sl()))
-    ..registerLazySingleton<StorageRepository>(() => StorageRepositoryImpl(sl()))
+    ..registerLazySingleton<StorageRepository>(
+        () => StorageRepositoryImpl(sl()))
 
     // Data Sources
     ..registerLazySingleton<RemoteDatasource>(() => RemoteDatasourceImpl(sl()))

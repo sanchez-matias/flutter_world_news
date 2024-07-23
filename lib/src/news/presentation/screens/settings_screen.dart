@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_world_news/core/services/theme_preferences.dart';
 import 'package:flutter_world_news/src/news/presentation/bloc/blocs.dart';
 import 'package:flutter_world_news/core/theme/app_theme.dart';
+import 'package:flutter_world_news/src/news/presentation/screens/tags_screen.dart';
 
 enum CategoryItem {
   general('General', 'general', Icons.all_inclusive),
@@ -87,6 +88,19 @@ class SettingsScreen extends StatelessWidget {
             // Home results customization
             const _CustomTitle('Customize your results'),
             const _CustomDropdownMenus(),
+
+            // Storage-related configs
+            const _CustomTitle('Local Storage'),
+            ListTile(
+              title: const Text('Your Lists'),
+              leading: const Icon(Icons.list),
+              trailing: const Icon(Icons.arrow_forward_ios),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const TagsScreen(),
+                  ));
+              },
+            ),
           ],
         ),
       ),
