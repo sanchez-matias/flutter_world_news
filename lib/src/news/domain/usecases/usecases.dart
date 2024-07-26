@@ -8,3 +8,6 @@ export 'storage/create_tag.dart';
 export 'storage/get_tags.dart';
 export 'storage/delete_tag.dart';
 export 'storage/update_tag.dart';
+export 'storage/tag_article.dart';
+export 'storage/untag_article.dart';
+export 'storage/get_tags_for_article.dart';

@@ -5,7 +5,7 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 abstract class StorageDatasource {
-  Future<List<Article>> getAllArticles();
+  Future<List<Article>> getArticlesBy(int tagId);
 
   Future<List<Article>> searchArticle(String query);
 
@@ -13,19 +13,24 @@ abstract class StorageDatasource {
 
   Future<bool> isArticleSaved(String url);
 
-  Future<List<Tag>> getTags();
+  Future<List<Tag>> getTags({Article? articleFilter});
 
   Future<void> createTag(String name);
 
   Future<void> updateTag({required int id, required String newName});
 
   Future<void> deleteTag(List<int> ids);
+
+  Future<void> tagArticle({required String articleUrl, required int tagId});
+
+  Future<void> untagArticle({required String articleUrl, required int tagId});
 }
 
 class StorageDatasourceImpl extends StorageDatasource {
   late Future<Database> _db;
   final String articlesTable = 'Articles';
   final String tagsTable = 'Tags';
+  final String tagmapTable = 'Tagmap';
 
   StorageDatasourceImpl() {
     _db = openDbInstance();
@@ -63,17 +68,35 @@ class StorageDatasourceImpl extends StorageDatasource {
         INSERT INTO $tagsTable (TagName, IsModifiable)
           VALUES ('Read Later', 0)
         ''');
+
+        db.execute('''
+        CREATE TABLE $tagmapTable (
+          ItemID INTEGER PRIMARY KEY AUTOINCREMENT,
+          ArticleID INTEGER,
+          TagID INTEGER,
+          FOREIGN KEY (ArticleID) REFERENCES $articlesTable (ArticleID),
+	        FOREIGN KEY (TagID) REFERENCES $tagsTable (TagID))
+        ''');
       },
     );
     return database;
   }
 
   @override
-  Future<List<Article>> getAllArticles() async {
+  Future<List<Article>> getArticlesBy(int tagId) async {
     try {
       final database = await _db;
-      final List<Map<String, dynamic>> savedArticles =
-          await database.rawQuery('SELECT * FROM $articlesTable');
+      late List<Map<String, dynamic>> savedArticles;
+
+      if (tagId == 0) {
+        savedArticles = await database.rawQuery('SELECT * FROM $articlesTable');
+      } else {
+        savedArticles = await database.rawQuery('''
+        SELECT * FROM $articlesTable
+        WHERE ArticleID IN (SELECT ArticleID FROM $tagmapTable
+          WHERE TagID = $tagId)
+        ''');
+      }
 
       return List.generate(
           savedArticles.length,
@@ -148,8 +171,14 @@ class StorageDatasourceImpl extends StorageDatasource {
       final isSaved = await isArticleSaved(article.url!);
 
       if (isSaved) {
+        await database.rawDelete('''
+        DELETE FROM $tagmapTable
+        WHERE ArticleID = (SELECT ArticleID FROM $articlesTable
+          WHERE Url = '${article.url}')
+        ''');
+
         await database.delete(articlesTable,
-            where: "ArticleID = '${article.id}'");
+            where: "Url = '${article.url}'");
         return;
       }
 
@@ -171,12 +200,22 @@ class StorageDatasourceImpl extends StorageDatasource {
   }
 
   @override
-  Future<List<Tag>> getTags() async {
+  Future<List<Tag>> getTags({Article? articleFilter}) async {
     try {
       final database = await _db;
-      final List<Map<String, dynamic>> tags =
-          await database.rawQuery('SELECT * FROM $tagsTable');
+      late List<Map<String, dynamic>> tags;
 
+      if (articleFilter != null) {
+        tags = await database.rawQuery('''
+        SELECT * FROM $tagsTable
+        WHERE TagID IN (SELECT TagID FROM $tagmapTable
+          WHERE ArticleID = (SELECT ArticleID FROM $articlesTable
+              WHERE Url = '${articleFilter.url}'))
+        ''');
+      } else {
+        tags = await database.rawQuery('SELECT * FROM $tagsTable');
+      }
+      
       return List.generate(
           tags.length,
           (index) => Tag(
@@ -249,10 +288,50 @@ class StorageDatasourceImpl extends StorageDatasource {
       final String idsToString = ids.toString()
         .replaceFirst("[", "(")
         .replaceFirst("]", ")");
+
+      await database.rawDelete('''
+      DELETE FROM $tagmapTable
+      WHERE TagID IN $idsToString
+      ''');
       
       await database.rawDelete('''
       DELETE FROM $tagsTable
       WHERE TagID IN $idsToString AND IsModifiable = 1
+      ''');
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(messagge: e.toString(), statusCode: 501);
+    }
+  }
+
+  @override
+  Future<void> tagArticle({required String articleUrl, required int tagId}) async {
+    try {
+      final database = await _db;
+
+      await database.rawInsert('''
+      INSERT INTO $tagmapTable (ArticleID, TagID) VALUES (
+      (SELECT ArticleID FROM $articlesTable WHERE Url = '$articleUrl'),
+      $tagId
+      )
+      ''');
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(messagge: e.toString(), statusCode: 501);
+    }
+  }
+
+  @override
+  Future<void> untagArticle({required String articleUrl, required int tagId}) async {
+    try {
+      final database = await _db;
+
+      await database.rawDelete('''
+      DELETE FROM $tagmapTable
+      WHERE ArticleID = (SELECT ArticleID FROM $articlesTable WHERE Url = '$articleUrl')
+      AND TagID = $tagId
       ''');
     } on ApiException {
       rethrow;

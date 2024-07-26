@@ -23,6 +23,7 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
         super(const StorageState()) {
     on<GetFromDb>(_onGetArticlesHandler);
     on<ToggleSavedEvent>(_onToggleSavedHandler);
+    on<ChangeSelectedList>(_onChangeListHandler);
   }
 
   Future<bool?> isArticleSaved(String url) async {
@@ -34,7 +35,7 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
 
   Future<void> _onGetArticlesHandler(
       GetFromDb event, Emitter<StorageState> emit) async {
-    final articles = await _getArticles();
+    final articles = await _getArticles(state.selectedTag);
 
     articles.fold(
       (failure) => emit(state.copyWith(status: StorageStatus.failure)),
@@ -53,5 +54,16 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
       (failure) => emit(state.copyWith(status: StorageStatus.failure)),
       (res) => add(GetFromDb()),
     );
+  }
+
+  Future<void> _onChangeListHandler(
+      ChangeSelectedList event, Emitter<StorageState> emit) async {
+    emit(state.copyWith(
+      status: StorageStatus.initial,
+      articles: [],
+      selectedTag: event.tagId,
+    ));
+
+    add(GetFromDb());
   }
 }

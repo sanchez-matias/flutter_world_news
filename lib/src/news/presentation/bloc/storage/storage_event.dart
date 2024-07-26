@@ -20,3 +20,9 @@ class ToggleSavedEvent extends StorageEvent {
 
   const ToggleSavedEvent(this.article);
 }
+
+class ChangeSelectedList extends StorageEvent {
+  final int tagId;
+
+  const ChangeSelectedList(this.tagId);
+}

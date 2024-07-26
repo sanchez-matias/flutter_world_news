@@ -13,9 +13,9 @@ class StorageRepositoryImpl extends StorageRepository {
   StorageRepositoryImpl(this.datasource);
 
   @override
-  ResultFuture<List<Article>> getAllArticles() async {
+  ResultFuture<List<Article>> getArticlesBy(int tagId) async {
     try {
-      return Right(await datasource.getAllArticles());
+      return Right(await datasource.getArticlesBy(tagId));
     } on ApiException catch (e) {
       return Left(ApiFailure.fromException(e));
     }
@@ -79,6 +79,40 @@ class StorageRepositoryImpl extends StorageRepository {
   ResultVoid updateTag({required int id, required String newName}) async {
     try {
       return Right(await datasource.updateTag(id: id, newName: newName));
+    } on ApiException catch (e) {
+      return Left(ApiFailure.fromException(e));
+    }
+  }
+
+  @override
+  ResultVoid tagArticle({required String articleUrl, required int tagId}) async {
+    try {
+      return Right(await datasource.tagArticle(
+        articleUrl: articleUrl,
+        tagId: tagId,
+      ));
+    } on ApiException catch (e) {
+      return Left(ApiFailure.fromException(e));
+    }
+  }
+
+  @override
+  ResultVoid untagArticle({required String articleUrl, required int tagId}) async {
+    try {
+      return Right(await datasource.untagArticle(
+        articleUrl: articleUrl,
+        tagId: tagId,
+      ));
+    } on ApiException catch (e) {
+      return Left(ApiFailure.fromException(e));
+    }
+  }
+  
+  @override
+  ResultFuture<List<int>> getTagsForArticle(Article article) async {
+    try {
+      final tags = await datasource.getTags(articleFilter: article);
+      return Right(tags.map((tag) => tag.id).toList());
     } on ApiException catch (e) {
       return Left(ApiFailure.fromException(e));
     }

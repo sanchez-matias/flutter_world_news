@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_world_news/src/news/domain/entities/article.dart';
 import 'package:flutter_world_news/src/news/presentation/bloc/blocs.dart';
+import 'package:flutter_world_news/src/news/presentation/widgets/tags_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class ArticleScreen extends StatefulWidget {
+class ArticleScreen extends StatelessWidget {
   final Article article;
 
   const ArticleScreen({
@@ -12,60 +13,47 @@ class ArticleScreen extends StatefulWidget {
     required this.article,
   });
 
-  @override
-  State<ArticleScreen> createState() => _ArticleScreenState();
-}
-
-class _ArticleScreenState extends State<ArticleScreen> {
-  bool? isSaved;
-
-  Future<void> _updateSavedButton() async {
-    final bloc = BlocProvider.of<StorageBloc>(context);
-    final value = await bloc.isArticleSaved(widget.article.url!);
-    setState(() {
-      isSaved = value;
-    });
-  }
-
-  Future<void> _toggleSavedTrigger() async {
-    context.read<StorageBloc>().add(ToggleSavedEvent(widget.article));
-    await Future.delayed(const Duration(milliseconds: 100));
-    await _updateSavedButton();
-    setState(() {});
-  }
-
-  void _showCustomSnackBar(String msg) {
+  void _showCustomSnackBar({
+    required BuildContext context,
+    required String msg,
+  }) {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   @override
-  void initState() {
-    super.initState();
-    _updateSavedButton();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final publishedAt = widget.article.publishedAt != null
-        ? DateTime.parse(widget.article.publishedAt!)
+    final storageBloc = context.watch<StorageBloc>().state;
+    final isSaved = storageBloc.urls.contains(article.url);
+
+    final publishedAt = article.publishedAt != null
+        ? DateTime.parse(article.publishedAt!)
         : DateTime.now();
 
     const fontFamily = 'NotoSerif';
 
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.article.sourceName!),
+          title: Text(article.sourceName!),
           actions: [
             IconButton(
-              onPressed: () async {
-                await _toggleSavedTrigger();
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  builder: (context) => TagsSheet(
+                    article: article,
+                  ),
+                );
               },
-              icon: isSaved == null
-                  ? const Icon(Icons.error_outline)
-                  : isSaved == true
-                      ? const Icon(Icons.bookmark)
-                      : const Icon(Icons.bookmark_outline),
+              icon: const Icon(Icons.list),
+            ),
+            IconButton(
+              onPressed: () async {
+                context.read<StorageBloc>().add(ToggleSavedEvent(article));
+              },
+              icon: isSaved
+                  ? const Icon(Icons.bookmark)
+                  : const Icon(Icons.bookmark_outline),
             )
           ],
         ),
@@ -85,7 +73,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
-                  widget.article.title!,
+                  article.title!,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 22,
@@ -96,7 +84,7 @@ class _ArticleScreenState extends State<ArticleScreen> {
               const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Text(widget.article.description ?? 'No caption',
+                child: Text(article.description ?? 'No caption',
                     style: const TextStyle(
                       fontFamily: fontFamily,
                       fontWeight: FontWeight.w600,
@@ -110,13 +98,13 @@ class _ArticleScreenState extends State<ArticleScreen> {
                 height: 300,
                 width: double.infinity,
                 placeholder: const AssetImage('assets/loading.gif'),
-                image: NetworkImage(widget.article.urlToImage!),
+                image: NetworkImage(article.urlToImage!),
               ),
               const SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
-                  widget.article.content!,
+                  article.content!,
                   style: const TextStyle(
                     fontFamily: fontFamily,
                     fontSize: 16,
@@ -127,10 +115,17 @@ class _ArticleScreenState extends State<ArticleScreen> {
               const SizedBox(height: 20),
               OutlinedButton.icon(
                 onPressed: () async {
-                  final uri = Uri.parse(widget.article.url!);
+                  final uri = Uri.parse(article.url!);
 
-                  if (!await launchUrl(uri, mode: LaunchMode.inAppBrowserView)) {
-                    _showCustomSnackBar('Oops... could not open in browser');
+                  if (!await launchUrl(
+                    uri,
+                    mode: LaunchMode.inAppBrowserView,
+                  )) {
+                    if (!context.mounted) return;
+                    _showCustomSnackBar(
+                      context: context,
+                      msg: 'Oops... could not open in browser',
+                    );
                   }
                 },
                 icon: const Icon(Icons.read_more),

@@ -102,6 +102,7 @@ class _TagsScreenState extends State<TagsScreen> {
                 : () async {
                     final areYouSure = await areYouSureDialog();
                     if (!areYouSure || !context.mounted) return;
+                    context.read<StorageBloc>().add(const ChangeSelectedList(0));
                     context.read<TagsCubit>().deleteTags(selectedTagsIds);
                     await Future.delayed(const Duration(milliseconds: 300));
                     setState(() {

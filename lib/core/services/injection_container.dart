@@ -25,6 +25,9 @@ Future<void> init() async {
           createTag: sl(),
           updateTag: sl(),
           deleteTag: sl(),
+          tagArticle: sl(),
+          untagArticle: sl(),
+          getTagsForArticle: sl()
         )..getTags())
 
     // Usecases
@@ -38,6 +41,9 @@ Future<void> init() async {
     ..registerLazySingleton(() => CreateTag(sl()))
     ..registerLazySingleton(() => UpdateTag(sl()))
     ..registerLazySingleton(() => DeleteTag(sl()))
+    ..registerLazySingleton(() => TagArticle(sl()))
+    ..registerLazySingleton(() => UntagArticle(sl()))
+    ..registerLazySingleton(() => GetTagsForArticle(sl()))
 
     // Repositories
     ..registerLazySingleton<RemoteRepository>(() => RemoteRepositoryImpl(sl()))
