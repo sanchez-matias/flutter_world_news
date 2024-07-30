@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_world_news/src/news/domain/entities/article.dart';
+import 'package:flutter_world_news/src/news/presentation/bloc/blocs.dart';
 import 'package:flutter_world_news/src/news/presentation/screens/article_screen.dart';
 import 'package:flutter_world_news/src/news/presentation/widgets/article_menu_anchor.dart';
 
 class ArticleCard extends StatelessWidget {
   final Article article;
 
-  ArticleCard({super.key, required this.article,});
-
-  final controller = MenuController();
+  const ArticleCard({
+    super.key,
+    required this.article,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final controller = MenuController();
+    final colors = Theme.of(context).colorScheme;
+    final storageBloc = context.watch<StorageBloc>().state;
+    final isArticleSaved = storageBloc.urls.contains(article.url);
+
     return ArticleMenuAnchor(
       article: article,
       controller: controller,
@@ -47,6 +55,7 @@ class ArticleCard extends StatelessWidget {
                 placeholder: const AssetImage('assets/loaders/loading.gif'),
                 image: NetworkImage(article.urlToImage!),
               ),
+              
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
@@ -59,6 +68,19 @@ class ArticleCard extends StatelessWidget {
                   ),
                 ),
               ),
+
+              isArticleSaved
+                  ? Padding(
+                    padding: const EdgeInsets.only(left: 15, bottom: 15),
+                    child: Row(
+                        children: [
+                          Icon(Icons.bookmark, color: colors.primary),
+                          const SizedBox(width: 5),
+                          const Text('Article Saved'),
+                        ],
+                      ),
+                  )
+                  : const SizedBox()
             ],
           ),
         ),
