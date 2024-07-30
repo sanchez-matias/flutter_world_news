@@ -52,6 +52,8 @@ class SettingsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const _CustomTitle('Theme'),
+
             // Dark Mode
             SwitchListTile.adaptive(
               shape: RoundedRectangleBorder(
@@ -71,7 +73,6 @@ class SettingsScreen extends StatelessWidget {
             ),
 
             // Theme Color
-            const _CustomTitle('Theme Color'),
             Wrap(
               spacing: 5,
               children: List<Widget>.generate(
@@ -140,48 +141,51 @@ class _CustomDropdownMenus extends StatelessWidget {
     final initialCategory = remoteBloc.category;
     final initialCountry = remoteBloc.country;
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          DropdownMenu<CategoryItem>(
-            width: size.width * 0.4,
-            enableSearch: false,
-            initialSelection: CategoryItem.values
-                .firstWhere((item) => item.endpointParam == initialCategory),
-            dropdownMenuEntries: CategoryItem.values
-                .map((item) => DropdownMenuEntry(
-                      value: item,
-                      label: item.label,
-                      leadingIcon: Icon(item.icon),
-                    ))
-                .toList(),
-            onSelected: (value) {
-              if (value == null) return;
-              context.read<RemoteBloc>().add(ChangeCategory(value.endpointParam));
-            },
-            label: const Text('Category'),
-          ),
-            
-          DropdownMenu<CountriesItem>(
-            width: size.width * 0.4,
-            enableSearch: false,
-            initialSelection: CountriesItem.values
-                .firstWhere((item) => item.endpointParam == initialCountry),
-            dropdownMenuEntries: CountriesItem.values
-                .map((item) => DropdownMenuEntry(
-                      value: item,
-                      label: item.label,
-                    ))
-                .toList(),
-            onSelected: (value) {
-              if (value == null) return;
-              context.read<RemoteBloc>().add(ChangeCountry(value.endpointParam));
-            },
-            label: const Text('Country'),
-          ),
-        ],
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 10),
+        child: Column(
+          children: [
+            DropdownMenu<CategoryItem>(
+              width: size.width * 0.9,
+              enableSearch: false,
+              initialSelection: CategoryItem.values
+                  .firstWhere((item) => item.endpointParam == initialCategory),
+              dropdownMenuEntries: CategoryItem.values
+                  .map((item) => DropdownMenuEntry(
+                        value: item,
+                        label: item.label,
+                        leadingIcon: Icon(item.icon),
+                      ))
+                  .toList(),
+              onSelected: (value) {
+                if (value == null) return;
+                context.read<RemoteBloc>().add(ChangeCategory(value.endpointParam));
+              },
+              label: const Text('Category'),
+            ),
+      
+            const SizedBox(height: 20),
+              
+            DropdownMenu<CountriesItem>(
+              width: size.width * 0.9,
+              enableSearch: false,
+              initialSelection: CountriesItem.values
+                  .firstWhere((item) => item.endpointParam == initialCountry),
+              dropdownMenuEntries: CountriesItem.values
+                  .map((item) => DropdownMenuEntry(
+                        value: item,
+                        label: item.label,
+                      ))
+                  .toList(),
+              onSelected: (value) {
+                if (value == null) return;
+                context.read<RemoteBloc>().add(ChangeCountry(value.endpointParam));
+              },
+              label: const Text('Country'),
+            ),
+          ],
+        ),
       ),
     );
   }

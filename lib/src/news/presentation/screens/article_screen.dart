@@ -104,7 +104,7 @@ class ArticleScreen extends StatelessWidget {
                 placeholderFit: BoxFit.none,
                 height: 300,
                 width: double.infinity,
-                placeholder: const AssetImage('assets/loading.gif'),
+                placeholder: const AssetImage('assets/loading-ios.gif'),
                 image: NetworkImage(article.urlToImage!),
               ),
 

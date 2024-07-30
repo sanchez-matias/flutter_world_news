@@ -38,7 +38,7 @@ class ArticleModel extends Article {
           sourceName: map["source"]["name"] ?? "Not provided",
           title: map["title"] ?? 'Untitled',
           url: map["url"],
-          urlToImage: map["urlToImage"] ?? 'https://th.bing.com/th/id/OIP.30oAyXf6XizSRpaa63TRuwHaFE?rs=1&pid=ImgDetMain',
+          urlToImage: map["urlToImage"] ?? 'https://cdn4.iconfinder.com/data/icons/solid-part-6/128/image_icon-512.png',
         );
 
   Map<String, dynamic> toMap() => {

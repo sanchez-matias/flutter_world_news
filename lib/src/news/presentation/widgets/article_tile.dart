@@ -14,6 +14,7 @@ class ArticleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     final size = MediaQuery.of(context).size;
     const fontFamily = 'NotoSerif';
     final controller = MenuController();
@@ -46,7 +47,8 @@ class ArticleTile extends StatelessWidget {
                     height: 130,
                     fit: BoxFit.cover,
                     image: NetworkImage(article.urlToImage!),
-                    placeholder: const AssetImage('assets/loaders/loading.gif'),
+                    placeholder: const AssetImage('assets/loaders/loading-ios.gif'),
+                    placeholderFit: BoxFit.none,
                   ),
                 ),
               ),
@@ -83,7 +85,10 @@ class ArticleTile extends StatelessWidget {
       
                     Text(
                       article.sourceName!.toUpperCase(),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: colors.primary,
+                        ),
                     )
                   ],
                 ),
