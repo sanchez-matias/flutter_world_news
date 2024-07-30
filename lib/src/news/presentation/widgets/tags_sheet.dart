@@ -16,7 +16,8 @@ class _TagsSheetState extends State<TagsSheet> {
   List<int> selectedTags = [];
 
   void getTagsForArticle() async {
-    final newSelectedTags = await context.read<TagsCubit>().getTagsForArticle(widget.article);
+    final newSelectedTags =
+        await context.read<TagsCubit>().getTagsForArticle(widget.article);
 
     if (newSelectedTags != null) {
       selectedTags = newSelectedTags;
@@ -32,9 +33,15 @@ class _TagsSheetState extends State<TagsSheet> {
     required int tagId,
   }) async {
     if (selectedTags.contains(tagId)) {
-      context.read<TagsCubit>().untagArticle(articleUrl: articleUrl, tagId: tagId);
+      context.read<TagsCubit>().untagArticle(
+            articleUrl: articleUrl,
+            tagId: tagId,
+          );
     } else {
-      context.read<TagsCubit>().tagArticle(articleUrl: articleUrl, tagId: tagId);
+      context.read<TagsCubit>().tagArticle(
+            articleUrl: articleUrl,
+            tagId: tagId,
+          );
     }
 
     await Future.delayed(const Duration(milliseconds: 100));
@@ -54,43 +61,56 @@ class _TagsSheetState extends State<TagsSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     final tagsCubit = context.watch<TagsCubit>().state;
     final storageBloc = context.watch<StorageBloc>().state;
     final isArticleSaved = storageBloc.urls.contains(widget.article.url);
 
     return SizedBox(
+      height: size.height * 0.5,
       width: double.infinity,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           const SizedBox(height: 30),
+      
           ListTile(
-              titleAlignment: ListTileTitleAlignment.center,
               title: Text(isArticleSaved ? 'Article Saved' : 'Not saved'),
               trailing: IconButton.outlined(
                 onPressed: () {
-                  context.read<StorageBloc>().add(ToggleSavedEvent(widget.article));
+                  context
+                      .read<StorageBloc>()
+                      .add(ToggleSavedEvent(widget.article));
                   getTagsForArticle();
                 },
                 icon: Icon(
                   isArticleSaved ? Icons.bookmark : Icons.bookmark_outline,
                 ),
               )),
+      
           const _TitledDivider('Lists'),
-          ...List.generate(
-            tagsCubit.tags.length,
-            (index) {
-              final tag = tagsCubit.tags[index];
-
-              return CheckboxListTile.adaptive(
-                  title: Text(tag.name),
-                  value: selectedTags.contains(tag.id),
-                  onChanged: !isArticleSaved
-                      ? null
-                      : (value) {
-                          toggleTagArticle(articleUrl: widget.article.url!, tagId: tag.id);
-                        });
-            },
+      
+          SizedBox(
+            height: size.height * 0.3,
+            child: SingleChildScrollView(
+              child: Column(
+                children: List.generate(
+                  tagsCubit.tags.length,
+                  (index) {
+                    final tag = tagsCubit.tags[index];
+                  
+                    return CheckboxListTile.adaptive(
+                        title: Text(tag.name),
+                        value: selectedTags.contains(tag.id),
+                        onChanged: !isArticleSaved
+                            ? null
+                            : (value) {
+                                toggleTagArticle(
+                                    articleUrl: widget.article.url!, tagId: tag.id);
+                              });
+                  },
+                ),
+              ),
+            ),
           )
         ],
       ),
