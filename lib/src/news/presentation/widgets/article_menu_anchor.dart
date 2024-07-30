@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_world_news/src/news/domain/entities/article.dart';
 import 'package:flutter_world_news/src/news/presentation/bloc/blocs.dart';
 import 'package:flutter_world_news/src/news/presentation/widgets/tags_sheet.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ArticleMenuAnchor extends StatelessWidget {
@@ -57,7 +58,9 @@ class ArticleMenuAnchor extends StatelessWidget {
         MenuItemButton(
           leadingIcon: const Icon(Icons.share),
           child: const Text('Share'),
-          onPressed: () {},
+          onPressed: () {
+            Share.share(article.url!, subject: article.title);
+          },
         ),
       ],
       controller: controller,

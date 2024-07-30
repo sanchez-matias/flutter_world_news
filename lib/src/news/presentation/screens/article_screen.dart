@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_world_news/src/news/domain/entities/article.dart';
 import 'package:flutter_world_news/src/news/presentation/bloc/blocs.dart';
 import 'package:flutter_world_news/src/news/presentation/widgets/tags_sheet.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ArticleScreen extends StatelessWidget {
@@ -69,7 +70,9 @@ class ArticleScreen extends StatelessWidget {
                   ),
                 ),
               ),
+
               const SizedBox(height: 10),
+
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
@@ -81,7 +84,9 @@ class ArticleScreen extends StatelessWidget {
                   ),
                 ),
               ),
+
               const SizedBox(height: 10),
+              
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(article.description ?? 'No caption',
@@ -91,7 +96,9 @@ class ArticleScreen extends StatelessWidget {
                       fontSize: 15,
                     )),
               ),
+
               const SizedBox(height: 20),
+
               FadeInImage(
                 fit: BoxFit.cover,
                 placeholderFit: BoxFit.none,
@@ -100,7 +107,9 @@ class ArticleScreen extends StatelessWidget {
                 placeholder: const AssetImage('assets/loading.gif'),
                 image: NetworkImage(article.urlToImage!),
               ),
+
               const SizedBox(height: 20),
+              
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
@@ -112,24 +121,41 @@ class ArticleScreen extends StatelessWidget {
                   textAlign: TextAlign.justify,
                 ),
               ),
-              const SizedBox(height: 20),
-              OutlinedButton.icon(
-                onPressed: () async {
-                  final uri = Uri.parse(article.url!);
 
-                  if (!await launchUrl(
-                    uri,
-                    mode: LaunchMode.inAppBrowserView,
-                  )) {
-                    if (!context.mounted) return;
-                    _showCustomSnackBar(
-                      context: context,
-                      msg: 'Oops... could not open in browser',
-                    );
-                  }
-                },
-                icon: const Icon(Icons.read_more),
-                label: const Text('Go to page'),
+              const SizedBox(height: 20),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      final uri = Uri.parse(article.url!);
+
+                      if (!await launchUrl(
+                        uri,
+                        mode: LaunchMode.inAppBrowserView,
+                      )) {
+                        if (!context.mounted) return;
+                        _showCustomSnackBar(
+                          context: context,
+                          msg: 'Oops... could not open in browser',
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.read_more),
+                    label: const Text('Go to page'),
+                  ),
+
+                  const SizedBox(width: 20),
+
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      Share.share(article.url!, subject: article.title);
+                    },
+                    icon: const Icon(Icons.share),
+                    label: const Text('Share'),
+                  )
+                ],
               ),
               const SizedBox(height: 40),
             ])));
